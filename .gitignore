@@ -1,1 +1,6 @@
+# IDEs
+.vs
 .idea
+packages/
+*/bin
+*/obj
