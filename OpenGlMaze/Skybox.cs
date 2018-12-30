@@ -33,7 +33,7 @@ namespace OpenGlMaze
         {
 
             gl.PushMatrix();
-            gl.Translatef(-size / 4f, -size / 4f, -size / 4f);
+            gl.Translatef(-size / 4f, -size / 3f, -size / 4f);
 
 
             gl.MatrixMode(gl.MODELVIEW);

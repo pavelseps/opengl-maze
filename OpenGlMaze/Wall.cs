@@ -11,26 +11,27 @@ namespace OpenGlMaze
 
     class Wall
     {
-        private float thickness = 0.1f;
-        private float height = 0.1f;
+        private float thickness = 0.001f;
+        private float height = 0.05f;
         private float width = 0.1f;
-        private float cubeSize = 0.1f; //TODO remove
         public static int[] texture = new int[1];
         float[][] vrt = new float[8][];
+        bool _isVertical = false;
 
-        public Wall()
+        public Wall(bool isVertical = false)
         {
+            _isVertical = isVertical;
             TextureLoader loader = new TextureLoader();
             loader.SetTexture("wall.jpg", texture);
 
             vrt[0] = new float[3] { 0, 0, 0 };
-            vrt[1] = new float[3] { 0, cubeSize, 0 };
-            vrt[2] = new float[3] { cubeSize, cubeSize, 0 };
-            vrt[3] = new float[3] { cubeSize, 0, 0 };
-            vrt[4] = new float[3] { 0, 0, cubeSize };
-            vrt[5] = new float[3] { 0, cubeSize, cubeSize };
-            vrt[6] = new float[3] { cubeSize, cubeSize, cubeSize };
-            vrt[7] = new float[3] { cubeSize, 0, cubeSize };
+            vrt[1] = new float[3] { 0, height, 0 };
+            vrt[2] = new float[3] { _isVertical ? width : thickness, height, 0 };
+            vrt[3] = new float[3] { _isVertical ? width : thickness, 0, 0 };
+            vrt[4] = new float[3] { 0, 0, _isVertical ? thickness : width };
+            vrt[5] = new float[3] { 0, height, _isVertical ? thickness : width };
+            vrt[6] = new float[3] { _isVertical ? width : thickness, height, _isVertical ? thickness : width };
+            vrt[7] = new float[3] { _isVertical ? width : thickness, 0, _isVertical ? thickness : width };
         }
 
         public void Draw()
@@ -38,7 +39,6 @@ namespace OpenGlMaze
 
             gl.PushMatrix();
             gl.MatrixMode(gl.MODELVIEW);
-            gl.Translatef(0.5f, 0, 0.5f);
 
             // Matice textur
             gl.MatrixMode(gl.TEXTURE);

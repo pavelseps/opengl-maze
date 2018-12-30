@@ -16,7 +16,6 @@ namespace OpenGlMaze
     public partial class Form1 : Form
     {
         OpenGL.Context context;
-        float cubeSize = 1;
 
         private float _rotateX, _rotateY, _playerX = 0, _playerY = 0.1f, _playerZ = 0;
         private const float MoveSpeed = 0.01f;
@@ -28,14 +27,15 @@ namespace OpenGlMaze
 
         Terrain ter;
         Skybox skybox;
-        Wall wall;
+        Wall wallX;
+        Wall wallY;
 
 
         public Form1()
         {
             InitializeComponent();
 
-            this.Size = new Size(800, 800);
+            this.Size = new Size(1200, 800);
 
             InitGL();
         }
@@ -45,7 +45,7 @@ namespace OpenGlMaze
             context = new OpenGL.Context(this, 32, 32, 0);
             gl.MatrixMode(gl.PROJECTION);
             gl.LoadIdentity();
-            glu.Perspective(40, this.Width / this.Height, 0.1f, 100f);
+            glu.Perspective(65, this.Width / this.Height, 0.001f, 100f);
             gl.Enable(gl.DEPTH_TEST);
             gl.ShadeModel(gl.FLAT);
 
@@ -63,7 +63,8 @@ namespace OpenGlMaze
 
             ter = new Terrain(128);
             skybox = new Skybox();
-            wall = new Wall();
+            wallX = new Wall(false);
+            wallY = new Wall(true);
         }
 
         public void Draw()
@@ -136,9 +137,15 @@ namespace OpenGlMaze
             //Skybox
             skybox.Draw();
 
-            
+
             //Test wall
-            wall.Draw();
+            gl.Translatef(0.5f, 0, 0.5f);
+            wallX.Draw();
+            wallY.Draw();
+            gl.Translatef(0.1f, 0, 0);
+            wallX.Draw();
+            gl.Translatef(0, 0, 0.1f);
+            wallY.Draw();
 
             // Light
             gl.Lightfv(gl.LIGHT0, gl.POSITION, new float[] { 0.5f, 0.5f, 1f });
