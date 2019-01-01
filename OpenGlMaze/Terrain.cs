@@ -23,16 +23,17 @@ namespace Grafika
         float[,][] verts;
 
         BMPImage map;
-        public static int[] texture = new int[1];
+        private static int[] texture = new int[1];
+        private int _textureRes = 0;
 
         public Terrain(int n)
         {
-
+            _textureRes = n;
             LoadDisplacementMap();
 
 
-            verts = new float[n, n][];
-            float delta = 1f / n;
+            verts = new float[_textureRes, _textureRes][];
+            float delta = 1f / _textureRes;
 
             float size = 256f * 3;
 
@@ -53,6 +54,25 @@ namespace Grafika
             loader.SetTexture("deathvalley_topomap_texture.jpg", texture);
 
             this.Draw();
+        }
+
+        public float GetEvelation(float x, float y)
+        {
+            float delta = 1f / _textureRes;
+            int localX = (int)Math.Floor(x / delta);
+            int localY = (int)Math.Floor(y / delta);
+
+            if (
+                localX < 0 
+                || localY < 0 
+                || localX >= _textureRes
+                || localY >= _textureRes
+                )
+            {
+                return 0f;
+            }
+
+            return verts[localY, localX][1];
         }
 
         public void LoadDisplacementMap()
@@ -119,6 +139,7 @@ namespace Grafika
 
             gl.MatrixMode(gl.MODELVIEW);
             gl.PopMatrix();
+           
         }
     }
 }

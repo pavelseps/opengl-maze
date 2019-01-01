@@ -17,8 +17,8 @@ namespace OpenGlMaze
     {
         OpenGL.Context context;
 
-        private float _rotateX, _rotateY, _playerX = 0, _playerY = 0.1f, _playerZ = 0;
-        private const float MoveSpeed = 0.01f;
+        private float _rotateX, _rotateY, _playerX = 0.8f, _playerY = 0.1f, _playerZ = 0.2f, _playerHeight = 0.014f;
+        private const float MoveSpeed = 0.002f;
         private List<Keys> _keyDowns = new List<Keys>();
        
 
@@ -93,7 +93,7 @@ namespace OpenGlMaze
             if (_keyDowns.Contains(Keys.W))
             {
                 _playerX += (float)Math.Sin(_rotateX) * (float)Math.Cos(_rotateY) * MoveSpeed;
-                _playerY += (float)Math.Sin(_rotateY) * MoveSpeed;
+                //_playerY += (float)Math.Sin(_rotateY) * MoveSpeed;
                 _playerZ += (float)Math.Cos(_rotateX) * (float)Math.Cos(_rotateY) * MoveSpeed;
             }
 
@@ -112,19 +112,20 @@ namespace OpenGlMaze
             if (_keyDowns.Contains(Keys.S))
             {
                 _playerX -= (float)Math.Sin(_rotateX) * (float)Math.Cos(_rotateY) * MoveSpeed;
-                _playerY -= (float)Math.Sin(_rotateY) * MoveSpeed;
+                //_playerY -= (float)Math.Sin(_rotateY) * MoveSpeed;
                 _playerZ -= (float)Math.Cos(_rotateX) * (float)Math.Cos(_rotateY) * MoveSpeed;
             }
 
             if (_keyDowns.Contains(Keys.Space))
             {
-                _playerY += MoveSpeed;
+                //_playerY += MoveSpeed;
             }
 
             if (_keyDowns.Contains(Keys.ShiftKey))
             {
-                _playerY -= MoveSpeed;
+                //_playerY -= MoveSpeed;
             }
+            _playerY = ter.GetEvelation(_playerX, _playerZ) + _playerHeight;
 
             glu.LookAt(_playerX, _playerY, _playerZ, _playerX + Math.Sin(_rotateX) * Math.Cos(_rotateY),
                 _playerY + Math.Sin(_rotateY),

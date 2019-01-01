@@ -12,11 +12,12 @@ namespace OpenGlMaze
     class Wall
     {
         private float thickness = 0.001f;
-        private float height = 0.05f;
-        private float width = 0.1f;
+        private float height = 0.025f;
+        private float width = 0.04f;
         public static int[] texture = new int[1];
         float[][] vrt = new float[8][];
         bool _isVertical = false;
+
 
         public Wall(bool isVertical = false)
         {
