@@ -17,18 +17,18 @@ namespace OpenGlMaze
     {
         OpenGL.Context context;
 
-        private float _rotateX, _rotateY, _playerX = 0.8f, _playerY = 0.1f, _playerZ = 0.2f, _playerHeight = 0.014f;
-        private const float MoveSpeed = 0.002f;
+        private float _rotateX, _rotateY, _playerX = 0.7f, _playerY = 0.2f, _playerZ = 0.3f, _playerHeight = 0.014f;
+        private const float MoveSpeed = 0.004f;
         private List<Keys> _keyDowns = new List<Keys>();
-       
 
-        float[] world_translation = new float[3];
-        float[] world_rotation = new float[3];
+        private bool _freeMove = false;
+
+        private float _resultMoveX = 0;
+        private float _resultMoveZ = 0;
 
         Terrain ter;
         Skybox skybox;
-        Wall wallX;
-        Wall wallY;
+        Maze maze;
 
 
         public Form1()
@@ -45,11 +45,10 @@ namespace OpenGlMaze
             context = new OpenGL.Context(this, 32, 32, 0);
             gl.MatrixMode(gl.PROJECTION);
             gl.LoadIdentity();
-            glu.Perspective(65, this.Width / this.Height, 0.001f, 100f);
+            glu.Perspective(65, this.Width / this.Height, 0.0001f, 100f);
             gl.Enable(gl.DEPTH_TEST);
             gl.ShadeModel(gl.FLAT);
-
-            world_translation[0] = world_translation[1] = world_translation[2] = 0;
+           
             
             gl.Enable(gl.DEPTH_TEST);
 
@@ -63,8 +62,7 @@ namespace OpenGlMaze
 
             ter = new Terrain(128);
             skybox = new Skybox();
-            wallX = new Wall(false);
-            wallY = new Wall(true);
+            maze = new Maze();
         }
 
         public void Draw()
@@ -92,42 +90,101 @@ namespace OpenGlMaze
 
             if (_keyDowns.Contains(Keys.W))
             {
-                _playerX += (float)Math.Sin(_rotateX) * (float)Math.Cos(_rotateY) * MoveSpeed;
-                //_playerY += (float)Math.Sin(_rotateY) * MoveSpeed;
-                _playerZ += (float)Math.Cos(_rotateX) * (float)Math.Cos(_rotateY) * MoveSpeed;
+                _resultMoveX = _playerX + (float)Math.Sin(_rotateX) * (float)Math.Cos(_rotateY) * MoveSpeed;
+                _resultMoveZ = _playerZ + (float)Math.Cos(_rotateX) * (float)Math.Cos(_rotateY) * MoveSpeed;
+
+                if (_freeMove || !maze.IsColision(
+                    _playerX,
+                    _playerZ,
+                    _resultMoveX,
+                    _resultMoveZ
+                    ))
+                {
+                    _playerX = _resultMoveX;
+                    if (_freeMove)
+                    {
+                        _playerY += (float)Math.Sin(_rotateY) * MoveSpeed;
+                    }
+                    _playerZ = _resultMoveZ;
+                }
             }
 
             if (_keyDowns.Contains(Keys.A))
             {
-                _playerX += (float)Math.Sin(_rotateX + Math.PI / 2) * MoveSpeed;
-                _playerZ += (float)Math.Cos(_rotateX + Math.PI / 2) * MoveSpeed;
+                _resultMoveX = _playerX + (float)Math.Sin(_rotateX + Math.PI / 2) * MoveSpeed;
+                _resultMoveZ = _playerZ + (float)Math.Cos(_rotateX + Math.PI / 2) * MoveSpeed;
+
+                if (_freeMove || !maze.IsColision(
+                    _playerX,
+                    _playerZ,
+                    _resultMoveX,
+                    _resultMoveZ
+                    ))
+                {
+                    _playerX = _resultMoveX;
+                    _playerZ = _resultMoveZ;
+                }
             }
 
             if (_keyDowns.Contains(Keys.D))
             {
-                _playerX += (float)Math.Sin(_rotateX - Math.PI / 2) * MoveSpeed;
-                _playerZ += (float)Math.Cos(_rotateX - Math.PI / 2) * MoveSpeed;
+                _resultMoveX = _playerX + (float)Math.Sin(_rotateX - Math.PI / 2) * MoveSpeed;
+                _resultMoveZ = _playerZ + (float)Math.Cos(_rotateX - Math.PI / 2) * MoveSpeed;
+                if (_freeMove || !maze.IsColision(
+                    _playerX,
+                    _playerZ,
+                    _resultMoveX,
+                    _resultMoveZ
+                    ))
+                {
+                    _playerX = _resultMoveX;
+                    _playerZ = _resultMoveZ;
+                }
             }
 
             if (_keyDowns.Contains(Keys.S))
             {
-                _playerX -= (float)Math.Sin(_rotateX) * (float)Math.Cos(_rotateY) * MoveSpeed;
-                //_playerY -= (float)Math.Sin(_rotateY) * MoveSpeed;
-                _playerZ -= (float)Math.Cos(_rotateX) * (float)Math.Cos(_rotateY) * MoveSpeed;
+                _resultMoveX = _playerX - (float)Math.Sin(_rotateX) * (float)Math.Cos(_rotateY) * MoveSpeed;
+                _resultMoveZ = _playerZ - (float)Math.Cos(_rotateX) * (float)Math.Cos(_rotateY) * MoveSpeed;
+                if (_freeMove || !maze.IsColision(
+                    _playerX,
+                    _playerZ,
+                    _resultMoveX,
+                    _resultMoveZ
+                    ))
+                {
+                    _playerX = _resultMoveX;
+                    if (_freeMove)
+                    {
+                        _playerY -= (float)Math.Sin(_rotateY) * MoveSpeed;
+                    }
+                    _playerZ = _resultMoveZ;
+                }
+                    
             }
 
             if (_keyDowns.Contains(Keys.Space))
             {
-                //_playerY += MoveSpeed;
+                if (_freeMove)
+                {
+                    _playerY += MoveSpeed;
+                }
             }
-
             if (_keyDowns.Contains(Keys.ShiftKey))
             {
-                //_playerY -= MoveSpeed;
+                if (_freeMove)
+                {
+                    _playerY -= MoveSpeed;
+                }
             }
-            _playerY = ter.GetEvelation(_playerX, _playerZ) + _playerHeight;
+            if (!_freeMove)
+            {
+                _playerY = ter.GetEvelation(_playerX, _playerZ) + _playerHeight;
+            }
+                    
 
             glu.LookAt(_playerX, _playerY, _playerZ, _playerX + Math.Sin(_rotateX) * Math.Cos(_rotateY),
+
                 _playerY + Math.Sin(_rotateY),
                 _playerZ + Math.Cos(_rotateX) * Math.Cos(_rotateY), 0, 1, 0);
 
@@ -137,19 +194,14 @@ namespace OpenGlMaze
 
             //Skybox
             skybox.Draw();
+            
+            //Maze
+            maze.Draw();
 
-
-            //Test wall
-            gl.Translatef(0.5f, 0, 0.5f);
-            wallX.Draw();
-            wallY.Draw();
-            gl.Translatef(0.1f, 0, 0);
-            wallX.Draw();
-            gl.Translatef(0, 0, 0.1f);
-            wallY.Draw();
 
             // Light
             gl.Lightfv(gl.LIGHT0, gl.POSITION, new float[] { 0.5f, 0.5f, 1f });
+            
 
             context.SwapBuffers();
         }

@@ -11,28 +11,30 @@ namespace OpenGlMaze
 
     class Wall
     {
-        private float thickness = 0.001f;
+        private float thickness = 0.0002f;
         private float height = 0.025f;
-        private float width = 0.04f;
+        private float _width;
         public static int[] texture = new int[1];
         float[][] vrt = new float[8][];
         bool _isVertical = false;
 
 
-        public Wall(bool isVertical = false)
+        public Wall(bool isVertical = false, float width = 0.04f)
         {
+            _width = width;
+
             _isVertical = isVertical;
             TextureLoader loader = new TextureLoader();
             loader.SetTexture("wall.jpg", texture);
 
             vrt[0] = new float[3] { 0, 0, 0 };
             vrt[1] = new float[3] { 0, height, 0 };
-            vrt[2] = new float[3] { _isVertical ? width : thickness, height, 0 };
-            vrt[3] = new float[3] { _isVertical ? width : thickness, 0, 0 };
-            vrt[4] = new float[3] { 0, 0, _isVertical ? thickness : width };
-            vrt[5] = new float[3] { 0, height, _isVertical ? thickness : width };
-            vrt[6] = new float[3] { _isVertical ? width : thickness, height, _isVertical ? thickness : width };
-            vrt[7] = new float[3] { _isVertical ? width : thickness, 0, _isVertical ? thickness : width };
+            vrt[2] = new float[3] { _isVertical ? _width : thickness, height, 0 };
+            vrt[3] = new float[3] { _isVertical ? _width : thickness, 0, 0 };
+            vrt[4] = new float[3] { 0, 0, _isVertical ? thickness : _width };
+            vrt[5] = new float[3] { 0, height, _isVertical ? thickness : _width };
+            vrt[6] = new float[3] { _isVertical ? _width : thickness, height, _isVertical ? thickness : _width };
+            vrt[7] = new float[3] { _isVertical ? _width : thickness, 0, _isVertical ? thickness : _width };
         }
 
         public void Draw()
