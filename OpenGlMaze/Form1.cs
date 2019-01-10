@@ -13,6 +13,8 @@ using OpenGL;
 
 namespace OpenGlMaze
 {
+    // TODO start end
+    // Nicer UI
     public partial class Form1 : Form
     {
         OpenGL.Context context;
@@ -21,7 +23,7 @@ namespace OpenGlMaze
         private const float MoveSpeed = 0.004f;
         private List<Keys> _keyDowns = new List<Keys>();
 
-        private bool _freeMove = false;
+        private bool _freeMove = true;
 
         private float _resultMoveX = 0;
         private float _resultMoveZ = 0;

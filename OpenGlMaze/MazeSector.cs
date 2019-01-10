@@ -21,7 +21,6 @@ namespace OpenGlMaze
         private bool _bottom = false;
         private bool _left = false;
         private float _wallSize = 0f;
-        private float _wallThickness = 0.0002f;
         private WallPosition _wallPositions = new WallPosition();
 
         public bool Top { get => _top; set => _top = value; }

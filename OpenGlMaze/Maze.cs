@@ -1,7 +1,10 @@
 ﻿using OpenGL;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -25,51 +28,8 @@ namespace OpenGlMaze
 
         public Maze()
         {
-            _mazeLength = 6;
-            _mazeStructure = new MazeSector[_mazeLength, _mazeLength];
+            _mazeStructure = LoadFromImage("maze.jpg");
 
-            _mazeStructure[0, 0] = new MazeSector() { Top = true, Right = false, Bottom = false, Left = true};
-            _mazeStructure[1, 0] = new MazeSector() { Top = true, Right = false, Bottom = true, Left = false };
-            _mazeStructure[2, 0] = new MazeSector() { Top = true, Right = false, Bottom = false, Left = false };
-            _mazeStructure[3, 0] = new MazeSector() { Top = true, Right = true, Bottom = false, Left = false };
-            _mazeStructure[4, 0] = new MazeSector() { Top = true, Right = false, Bottom = false, Left = true };
-            _mazeStructure[5, 0] = new MazeSector() { Top = true, Right = false, Bottom = false, Left = false };
-
-            _mazeStructure[0, 1] = new MazeSector() { Top = false, Right = false, Bottom = true, Left = false };
-            _mazeStructure[1, 1] = new MazeSector() { Top = true, Right = true, Bottom = true, Left = false };
-            _mazeStructure[2, 1] = new MazeSector() { Top = false, Right = true, Bottom = false, Left = true };
-            _mazeStructure[3, 1] = new MazeSector() { Top = false, Right = true, Bottom = true, Left = true };
-            _mazeStructure[4, 1] = new MazeSector() { Top = false, Right = true, Bottom = false, Left = true };
-            _mazeStructure[5, 1] = new MazeSector() { Top = false, Right = true, Bottom = true, Left = true };
-
-            _mazeStructure[0, 2] = new MazeSector() { Top = true, Right = false, Bottom = false, Left = true };
-            _mazeStructure[1, 2] = new MazeSector() { Top = true, Right = false, Bottom = false, Left = false };
-            _mazeStructure[2, 2] = new MazeSector() { Top = false, Right = false, Bottom = false, Left = false };
-            _mazeStructure[3, 2] = new MazeSector() { Top = true, Right = false, Bottom = true, Left = false };
-            _mazeStructure[4, 2] = new MazeSector() { Top = false, Right = false, Bottom = false, Left = false };
-            _mazeStructure[5, 2] = new MazeSector() { Top = true, Right = true, Bottom = false, Left = false };
-
-            _mazeStructure[0, 3] = new MazeSector() { Top = false, Right = true, Bottom = false, Left = true };
-            _mazeStructure[1, 3] = new MazeSector() { Top = false, Right = true, Bottom = false, Left = true };
-            _mazeStructure[2, 3] = new MazeSector() { Top = false, Right = false, Bottom = true, Left = true };
-            _mazeStructure[3, 3] = new MazeSector() { Top = true, Right = true, Bottom = false, Left = false };
-            _mazeStructure[4, 3] = new MazeSector() { Top = false, Right = true, Bottom = false, Left = true };
-            _mazeStructure[5, 3] = new MazeSector() { Top = false, Right = true, Bottom = true, Left = true };
-
-            _mazeStructure[0, 4] = new MazeSector() { Top = false, Right = true, Bottom = false, Left = true };
-            _mazeStructure[1, 4] = new MazeSector() { Top = false, Right = false, Bottom = true, Left = true };
-            _mazeStructure[2, 4] = new MazeSector() { Top = true, Right = true, Bottom = false, Left = false };
-            _mazeStructure[3, 4] = new MazeSector() { Top = false, Right = true, Bottom = true, Left = true };
-            _mazeStructure[4, 4] = new MazeSector() { Top = false, Right = true, Bottom = false, Left = true };
-            _mazeStructure[5, 4] = new MazeSector() { Top = true, Right = true, Bottom = false, Left = true };
-
-            _mazeStructure[0, 5] = new MazeSector() { Top = false, Right = false, Bottom = true, Left = true };
-            _mazeStructure[1, 5] = new MazeSector() { Top = true, Right = true, Bottom = true, Left = false };
-            _mazeStructure[2, 5] = new MazeSector() { Top = false, Right = false, Bottom = true, Left = true };
-            _mazeStructure[3, 5] = new MazeSector() { Top = true, Right = true, Bottom = true, Left = false };
-            _mazeStructure[4, 5] = new MazeSector() { Top = false, Right = false, Bottom = true, Left = true };
-            _mazeStructure[5, 5] = new MazeSector() { Top = false, Right = true, Bottom = true, Left = false };
-            
             Delta = _mazeSize / _mazeLength;
             _wallHorizontal = new Wall(true, Delta);
             _wallVertical = new Wall(false, Delta);
@@ -200,6 +160,99 @@ namespace OpenGlMaze
 
 
             return false;
+        }
+
+        public MazeSector[,] LoadFromImage(string url)
+        {
+            BMPImageLoader loader = new BMPImageLoader();
+            
+
+            BMPImage mazeImage = loader.LoadDisplacementMap(url);
+            _mazeLength = mazeImage.Width;
+            MazeSector[,] _mazeStructure = new MazeSector[_mazeLength, _mazeLength];
+            bool isTop = false;
+            bool isRight = false;
+            bool isBottom = false;
+            bool isLeft = false;
+            bool isVertical = false;
+            bool isHorizontal = false;
+            bool[] imagePoint = new bool[9];
+       
+            for (int row = 0; row < _mazeLength; row++)
+            {
+                for (int column = 0; column < _mazeLength; column++)
+                {
+
+                    imagePoint = GetAurounImagePoint(mazeImage, (column * 3) + (row * 3 * mazeImage.Width), 2);
+
+                    if(row != 0 && column != 0)
+                    {
+                        isTop = _mazeStructure[column, Math.Max(row - 1, 0)].Bottom;
+                        isLeft = _mazeStructure[Math.Max(column - 1, 0), row].Right;
+                    }
+                    else
+                    {
+                        isTop = false;
+                        isLeft = false;
+                    }
+                    isVertical = imagePoint[4] && (imagePoint[1] || imagePoint[7]);
+                    isHorizontal = imagePoint[4] && (imagePoint[3] || imagePoint[5]);
+                    isRight = isHorizontal? imagePoint[4] && imagePoint[1] : isVertical;
+                    isBottom = isVertical ? imagePoint[4] && imagePoint[3] : isHorizontal;
+
+                    _mazeStructure[column, row] = new MazeSector()
+                    {
+                        Top = isTop,
+                        Right = isRight,
+                        Bottom = isBottom,
+                        Left = isLeft
+                    };
+                    
+
+                    /*mazeImage.ImageData[(column * 3) + (row * 3 * mazeImage.Width) + 2]; // blue (walls)
+                    mazeImage.ImageData[(column * 3) + (row * 3 * mazeImage.Width) + 1]; // green (start)
+                    mazeImage.ImageData[(column * 3) + (row * 3 * mazeImage.Width)]; // red (end)*/
+                }
+            }
+
+
+            return _mazeStructure;
+        }
+
+        private bool[] GetAurounImagePoint(BMPImage image, int index, int offset)
+        {
+
+            int imageWidth = image.Width * 3;
+
+            bool isOnTop = index < imageWidth;
+            bool isOnRight = index % imageWidth == imageWidth - 3;
+            bool isOnBottom = index >= imageWidth * (image.Height - 1);
+            bool isOnLeft = index % image.Width == 0;
+
+            bool[] ret = new bool[9];
+            ret[0] = isOnTop || isOnLeft ? false : GetImagePointResult(image.ImageData[index - imageWidth - 3 + offset]);
+            ret[1] = isOnTop ? false : GetImagePointResult(image.ImageData[index - imageWidth + offset]);
+            ret[2] = isOnTop || isOnRight ? false : GetImagePointResult(image.ImageData[index - imageWidth + 3 + offset]);
+
+            ret[3] = isOnLeft ? false : GetImagePointResult(image.ImageData[index - 3 + offset]);
+            ret[4] = GetImagePointResult(image.ImageData[index + offset]); // middle
+            ret[5] = isOnRight ? false : GetImagePointResult(image.ImageData[index + 3 + offset]);
+
+            ret[6] = isOnBottom || isOnLeft ? false : GetImagePointResult(image.ImageData[index + imageWidth - 3 + offset]);
+            ret[7] = isOnBottom ? false : GetImagePointResult(image.ImageData[index + imageWidth + offset]);
+            ret[8] = isOnBottom || isOnRight ? false : GetImagePointResult(image.ImageData[index + imageWidth + 3 + offset]);
+
+            if (!ret[4])
+            {
+                int aa = 0;
+            }
+
+            return ret;
+        }
+
+        private bool GetImagePointResult(int value)
+        {
+            return value < 127;
         }
     }
 }
