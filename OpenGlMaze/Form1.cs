@@ -20,26 +20,48 @@ namespace OpenGlMaze
         OpenGL.Context context;
 
         private float _rotateX, _rotateY, _playerX = 0.7f, _playerY = 0.2f, _playerZ = 0.3f, _playerHeight = 0.014f;
-        private const float MoveSpeed = 0.004f;
+        private const float MoveSpeed = 0.002f;
         private List<Keys> _keyDowns = new List<Keys>();
 
-        private bool _freeMove = true;
+        private bool _freeMove = false;
 
         private float _resultMoveX = 0;
         private float _resultMoveZ = 0;
+        private string _colisionResult = "";
+
+        private App _app;
 
         Terrain ter;
         Skybox skybox;
         Maze maze;
 
+        internal App App { get => _app; set => _app = value; }
 
         public Form1()
         {
+
             InitializeComponent();
 
             this.Size = new Size(1200, 800);
 
             InitGL();
+        }
+
+        public void Start(string mazeUrl)
+        {
+            ter = new Terrain(128);
+            skybox = new Skybox();
+            maze = new Maze(mazeUrl);
+
+            Tuple<float, float> playerPos = maze.GetStartPosition();
+            _playerX = playerPos.Item1;
+            _playerZ = playerPos.Item2;
+        }
+
+
+        public void End()
+        {
+            _keyDowns.Clear();
         }
 
         private void InitGL()
@@ -60,11 +82,6 @@ namespace OpenGlMaze
 
             gl.LightModelfv(gl.LIGHT_MODEL_AMBIENT, new float[] { 1f, 1f, 1f, 1 });
             gl.Enable(gl.LIGHTING);
-            
-
-            ter = new Terrain(128);
-            skybox = new Skybox();
-            maze = new Maze();
         }
 
         public void Draw()
@@ -95,12 +112,19 @@ namespace OpenGlMaze
                 _resultMoveX = _playerX + (float)Math.Sin(_rotateX) * (float)Math.Cos(_rotateY) * MoveSpeed;
                 _resultMoveZ = _playerZ + (float)Math.Cos(_rotateX) * (float)Math.Cos(_rotateY) * MoveSpeed;
 
-                if (_freeMove || !maze.IsColision(
+                _colisionResult = maze.IsColision(
                     _playerX,
                     _playerZ,
                     _resultMoveX,
                     _resultMoveZ
-                    ))
+                    );
+
+                if(_colisionResult == Maze.COLISION_END)
+                {
+                    _app.Finished();
+                }
+
+                if (_freeMove || _colisionResult == Maze.COLISION_FALSE)
                 {
                     _playerX = _resultMoveX;
                     if (_freeMove)
@@ -115,13 +139,19 @@ namespace OpenGlMaze
             {
                 _resultMoveX = _playerX + (float)Math.Sin(_rotateX + Math.PI / 2) * MoveSpeed;
                 _resultMoveZ = _playerZ + (float)Math.Cos(_rotateX + Math.PI / 2) * MoveSpeed;
-
-                if (_freeMove || !maze.IsColision(
+                _colisionResult = maze.IsColision(
                     _playerX,
                     _playerZ,
                     _resultMoveX,
                     _resultMoveZ
-                    ))
+                    );
+
+                if (_colisionResult == Maze.COLISION_END)
+                {
+                    _app.Finished();
+                }
+
+                if (_freeMove || _colisionResult == Maze.COLISION_FALSE)
                 {
                     _playerX = _resultMoveX;
                     _playerZ = _resultMoveZ;
@@ -132,12 +162,19 @@ namespace OpenGlMaze
             {
                 _resultMoveX = _playerX + (float)Math.Sin(_rotateX - Math.PI / 2) * MoveSpeed;
                 _resultMoveZ = _playerZ + (float)Math.Cos(_rotateX - Math.PI / 2) * MoveSpeed;
-                if (_freeMove || !maze.IsColision(
+                _colisionResult = maze.IsColision(
                     _playerX,
                     _playerZ,
                     _resultMoveX,
                     _resultMoveZ
-                    ))
+                    );
+
+                if (_colisionResult == Maze.COLISION_END)
+                {
+                    _app.Finished();
+                }
+
+                if (_freeMove || _colisionResult == Maze.COLISION_FALSE)
                 {
                     _playerX = _resultMoveX;
                     _playerZ = _resultMoveZ;
@@ -148,12 +185,19 @@ namespace OpenGlMaze
             {
                 _resultMoveX = _playerX - (float)Math.Sin(_rotateX) * (float)Math.Cos(_rotateY) * MoveSpeed;
                 _resultMoveZ = _playerZ - (float)Math.Cos(_rotateX) * (float)Math.Cos(_rotateY) * MoveSpeed;
-                if (_freeMove || !maze.IsColision(
+                _colisionResult = maze.IsColision(
                     _playerX,
                     _playerZ,
                     _resultMoveX,
                     _resultMoveZ
-                    ))
+                    );
+
+                if (_colisionResult == Maze.COLISION_END)
+                {
+                    _app.Finished();
+                }
+
+                if (_freeMove || _colisionResult == Maze.COLISION_FALSE)
                 {
                     _playerX = _resultMoveX;
                     if (_freeMove)

@@ -16,14 +16,24 @@ namespace OpenGlMaze
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            //Application.Run(new Form1());
+            App app = new App();
+            Form2 settingsForm = new Form2();
+            Form1 mazeForm = new Form1(); 
 
-            Form1 form = new Form1();
-            form.Show();
+            mazeForm.App = app;
+            settingsForm.App = app;
+            app.Game = mazeForm;
+            app.Settings = settingsForm;
 
-            while (!form.IsDisposed)
+            mazeForm.Hide();
+            settingsForm.Show();
+
+            while (!mazeForm.IsDisposed && !settingsForm.IsDisposed)
             {
-                form.Draw();
+                if (mazeForm.Visible)
+                {
+                    mazeForm.Draw();
+                }
                 Application.DoEvents();
             }
         }

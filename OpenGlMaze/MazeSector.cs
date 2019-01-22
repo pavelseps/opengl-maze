@@ -16,21 +16,26 @@ namespace OpenGlMaze
 
     class MazeSector
     {
-        private bool _top = false;
-        private bool _right = false;
-        private bool _bottom = false;
-        private bool _left = false;
+        public const string WALL = "wall";
+        public const string NONE = "none";
+        public const string START = "start";
+        public const string END = "end";
+
+        private string _top = MazeSector.NONE;
+        private string _right = MazeSector.NONE;
+        private string _bottom = MazeSector.NONE;
+        private string _left = MazeSector.NONE;
         private float _wallSize = 0f;
         private WallPosition _wallPositions = new WallPosition();
 
-        public bool Top { get => _top; set => _top = value; }
-        public bool Right { get => _right; set => _right = value; }
-        public bool Bottom { get => _bottom; set => _bottom = value; }
-        public bool Left { get => _left; set => _left = value; }
+        public string Top { get => _top; set => _top = value; }
+        public string Right { get => _right; set => _right = value; }
+        public string Bottom { get => _bottom; set => _bottom = value; }
+        public string Left { get => _left; set => _left = value; }
         public WallPosition WallPositions { get => _wallPositions; set => _wallPositions = value; }
         public float WallSize { get => _wallSize; set => _wallSize = value; }
 
-        public bool IsColision(float fromX, float fromY, float toX, float toY)
+        public string IsColision(float fromX, float fromY, float toX, float toY)
         {
             float biggerX = 0;
             float lowerX = 0;
@@ -59,8 +64,7 @@ namespace OpenGlMaze
                 lowerY = fromY;
             }
             
-            //TODO calculate with wall thickness 
-            if (Top)
+            if (Top == MazeSector.WALL || Top == MazeSector.END)
             {
                 if (
                     biggerY > _wallPositions.Top.Item2
@@ -69,11 +73,11 @@ namespace OpenGlMaze
                     && toX <= _wallPositions.Top.Item1 + _wallSize
                     )
                 {
-                    return true;
+                    return _top == MazeSector.END ? Maze.COLISION_END : Maze.COLISION_TRUE;
                 }
             }
 
-            if (Right)
+            if (Right == MazeSector.WALL || Right == MazeSector.END)
             {
                 if (
                     lowerX < _wallPositions.Right.Item1
@@ -82,11 +86,11 @@ namespace OpenGlMaze
                     && toY <= _wallPositions.Right.Item2 + _wallSize
                     )
                 {
-                    return true;
+                    return _right == MazeSector.END ? Maze.COLISION_END : Maze.COLISION_TRUE;
                 }
             }
 
-            if (Bottom)
+            if (Bottom == MazeSector.WALL || Bottom == MazeSector.END)
             {
                 if (
                     lowerY < _wallPositions.Bottom.Item2
@@ -95,11 +99,11 @@ namespace OpenGlMaze
                     && toX <= _wallPositions.Bottom.Item1 + _wallSize
                     )
                 {
-                    return true;
+                    return _bottom == MazeSector.END ? Maze.COLISION_END : Maze.COLISION_TRUE;
                 }
             }
 
-            if (Left)
+            if (Left == MazeSector.WALL || Left == MazeSector.END)
             {
                 if (
                     biggerX > _wallPositions.Left.Item1
@@ -108,12 +112,12 @@ namespace OpenGlMaze
                     && toY <= _wallPositions.Left.Item2 + _wallSize
                     )
                 {
-                    return true;
+                    return _left == MazeSector.END ? Maze.COLISION_END : Maze.COLISION_TRUE;
                 }
             }
 
 
-            return false;
+            return Maze.COLISION_FALSE;
         }
     }
 }
